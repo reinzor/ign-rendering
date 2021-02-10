@@ -265,6 +265,7 @@ void Ogre2ThermalCameraMaterialSwitcher::preRenderTargetUpdate(
       if (tempAny.index() != 0 && !std::holds_alternative<std::string>(tempAny))
       {
         float temp = -1.0;
+        bool foundTemp = true;
         try
         {
           temp = std::get<float>(tempAny);
@@ -285,9 +286,15 @@ void Ogre2ThermalCameraMaterialSwitcher::preRenderTargetUpdate(
             {
               ignerr << "Error casting user data: " << e.what() << "\n";
               temp = -1.0;
+              foundTemp = false;
             }
           }
         }
+
+        // if a non-positive temperature was given, clamp it to 0
+        // (using a value just above 0.0 due to floating point roundoff error)
+        if (foundTemp && (temp <= 0.0))
+          temp = 0.01;
 
         // only accept positive temperature (in kelvin)
         if (temp >= 0.0)
