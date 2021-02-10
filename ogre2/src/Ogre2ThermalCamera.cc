@@ -292,30 +292,30 @@ void Ogre2ThermalCameraMaterialSwitcher::preRenderTargetUpdate(
         }
 
         // if a non-positive temperature was given, clamp it to 0
-        // (using a value just above 0.0 due to floating point roundoff error)
-        if (foundTemp && (temp <= 0.0))
-          temp = 0.01;
-
-        // only accept positive temperature (in kelvin)
-        if (temp >= 0.0)
+        if (foundTemp && temp < 0.0)
         {
-          for (unsigned int i = 0; i < item->getNumSubItems(); ++i)
-          {
-            Ogre::SubItem *subItem = item->getSubItem(i);
+          temp = 0.0;
+          ignwarn << "Unable to set negatve temperature for: "
+              << ogreVisual->Name() << ". Value cannot be lower than absolute "
+              << "zero. Clamping temperature to 0 degrees Kelvin."
+              << std::endl;
+        }
+        for (unsigned int i = 0; i < item->getNumSubItems(); ++i)
+        {
+          Ogre::SubItem *subItem = item->getSubItem(i);
 
-            // normalize temperature value
-            float color = (temp / this->resolution) / ((1 << bitDepth) - 1.0);
+          // normalize temperature value
+          float color = (temp / this->resolution) / ((1 << bitDepth) - 1.0);
 
-            // set g, b, a to 0. This will be used by shaders to determine
-            // if particular fragment is a heat source or not
-            // see media/materials/programs/thermal_camera_fs.glsl
-            subItem->setCustomParameter(this->customParamIdx,
-                Ogre::Vector4(color, 0, 0, 0.0));
-            Ogre::HlmsDatablock *datablock = subItem->getDatablock();
-            this->datablockMap[subItem] = datablock;
+          // set g, b, a to 0. This will be used by shaders to determine
+          // if particular fragment is a heat source or not
+          // see media/materials/programs/thermal_camera_fs.glsl
+          subItem->setCustomParameter(this->customParamIdx,
+              Ogre::Vector4(color, 0, 0, 0.0));
+          Ogre::HlmsDatablock *datablock = subItem->getDatablock();
+          this->datablockMap[subItem] = datablock;
 
-            subItem->setMaterial(this->heatSourceMaterial);
-          }
+          subItem->setMaterial(this->heatSourceMaterial);
         }
       }
       // get heat signature and the corresponding min/max temperature values
