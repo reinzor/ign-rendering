@@ -1280,18 +1280,18 @@ void BaseScene::CreateNodeStore()
   NodeCompositeStorePtr compStore(new BaseNodeCompositeStore);
 
   // get specific stores
-  LightStorePtr lights = this->Lights();
-  SensorStorePtr sensors = this->Sensors();
+  // LightStorePtr lights = this->Lights();
+  // SensorStorePtr sensors = this->Sensors();
   VisualStorePtr visuals = this->Visuals();
 
   // convert to node stores
-  NodeStorePtr lightNodes(new BaseStoreWrapper<Node, Light>(lights));
-  NodeStorePtr sensorNodes(new BaseStoreWrapper<Node, Sensor>(sensors));
+  // NodeStorePtr lightNodes(new BaseStoreWrapper<Node, Light>(lights));
+  // NodeStorePtr sensorNodes(new BaseStoreWrapper<Node, Sensor>(sensors));
   NodeStorePtr visualNodes(new BaseStoreWrapper<Node, Visual>(visuals));
 
   // add to composite store
-  compStore->AddStore(lightNodes);
-  compStore->AddStore(sensorNodes);
+  // compStore->AddStore(lightNodes);
+  // compStore->AddStore(sensorNodes);
   compStore->AddStore(visualNodes);
 
   this->nodes = compStore;

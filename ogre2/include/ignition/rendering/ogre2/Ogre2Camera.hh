@@ -21,6 +21,7 @@
 
 #include "ignition/rendering/base/BaseCamera.hh"
 #include "ignition/rendering/ogre2/Ogre2RenderTypes.hh"
+#include "ignition/rendering/ogre2/Ogre2Includes.hh"
 #include "ignition/rendering/ogre2/Ogre2Sensor.hh"
 
 namespace Ogre
@@ -36,7 +37,7 @@ namespace ignition
     //
     // forward declaration
     class Ogre2CameraPrivate;
-    class Ogre2SelectionBuffer;
+    // class Ogre2SelectionBuffer;
 
     /// \brief Ogre2.x implementation of the camera class
     class IGNITION_RENDERING_OGRE2_VISIBLE Ogre2Camera :
@@ -133,7 +134,7 @@ namespace ignition
       protected: Ogre::Camera *ogreCamera = nullptr;
 
       /// \brief Selection buffer object for entity picking
-      protected: Ogre2SelectionBuffer *selectionBuffer = nullptr;
+      // protected: Ogre2SelectionBuffer *selectionBuffer = nullptr;
 
       /// \brief Pointer to render texture
       protected: Ogre2RenderTargetPtr renderTexture;
@@ -143,6 +144,8 @@ namespace ignition
 
       /// \brief Pointer to private data class
       private: std::unique_ptr<Ogre2CameraPrivate> dataPtr;
+
+      private: Ogre::TextureGpu *texture;
 
       /// \brief Make scene our friend so it can create a camera
       private: friend class Ogre2Scene;

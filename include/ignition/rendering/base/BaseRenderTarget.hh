@@ -187,6 +187,7 @@ namespace ignition
     template <class T>
     void BaseRenderTarget<T>::SetWidth(const unsigned int _width)
     {
+      std::cerr << "/* SetWidth: " << _width << '\n';
       this->width = _width;
       this->targetDirty = true;
     }
@@ -202,6 +203,7 @@ namespace ignition
     template <class T>
     void BaseRenderTarget<T>::SetHeight(const unsigned int _height)
     {
+      std::cerr << "/* SetHeight: " << _height << '\n';
       this->height = _height;
       this->targetDirty = true;
     }

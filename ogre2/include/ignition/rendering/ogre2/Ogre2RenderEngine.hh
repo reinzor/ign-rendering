@@ -110,6 +110,10 @@ namespace ignition
                   const unsigned int _width, const unsigned int _height,
                   const double _ratio, const unsigned int _antiAliasing);
 
+      public: Ogre::Window *CreateRenderWindow2(const std::string &_handle,
+                  const unsigned int _width, const unsigned int _height,
+                  const double _ratio, const unsigned int _antiAliasing);
+
       /// \brief Create a scene
       /// \param[in] _id Unique scene Id
       /// \parampin] _name Name of scene
@@ -137,6 +141,9 @@ namespace ignition
 
       /// \brief Create GL context
       private: void CreateContext();
+
+      /// \brief Register Hlms
+      private: void registerHlms();
 
       /// \brief Create ogre root
       private: void CreateRoot();
@@ -192,6 +199,10 @@ namespace ignition
       /// \brief Dummy window Id needed for linux platform
       private: uint64_t dummyWindowId = 0u;
 
+      private: Ogre::Window * window;
+
+      public: Ogre::Window *getWindow(){ return this->window; }
+
       /// \brief True to use the current opengl context
       private: bool useCurrentGLContext = false;
 
@@ -205,4 +216,3 @@ namespace ignition
   }
 }
 #endif
-

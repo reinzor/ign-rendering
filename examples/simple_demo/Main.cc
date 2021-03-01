@@ -65,45 +65,45 @@ void buildScene(ScenePtr _scene)
 
   // create green material
   MaterialPtr green = _scene->CreateMaterial();
-  green->SetAmbient(0.0, 0.5, 0.0);
-  green->SetDiffuse(0.0, 0.7, 0.0);
+  green->SetAmbient(0.0, 1.0, 0.0);
+  green->SetDiffuse(0.0, 1.0, 0.0);
   green->SetSpecular(0.5, 0.5, 0.5);
   green->SetShininess(50);
   green->SetReflectivity(0);
 
-  // create center visual
-  VisualPtr center = _scene->CreateVisual();
-  center->AddGeometry(_scene->CreateSphere());
-  center->SetLocalPosition(3, 0, 0);
-  center->SetLocalScale(0.1, 0.1, 0.1);
-  center->SetMaterial(green);
-  root->AddChild(center);
-
-//! [red material]
-  // create red material
-  MaterialPtr red = _scene->CreateMaterial();
-  red->SetAmbient(0.5, 0.0, 0.0);
-  red->SetDiffuse(1.0, 0.0, 0.0);
-  red->SetSpecular(0.5, 0.5, 0.5);
-  red->SetShininess(50);
-  red->SetReflectivity(0);
-  red->SetRenderOrder(3);
-//! [red material]
-
-  // create sphere visual
-  VisualPtr sphere = _scene->CreateVisual();
-  sphere->AddGeometry(_scene->CreateSphere());
-  sphere->SetOrigin(0.0, -0.5, 0.0);
-  sphere->SetLocalPosition(3, 0, 0);
-  sphere->SetLocalRotation(0, 0, 0);
-  sphere->SetLocalScale(1, 1, 1);
-  sphere->SetMaterial(red);
-  root->AddChild(sphere);
+//   // create center visual
+//   VisualPtr center = _scene->CreateVisual();
+//   center->AddGeometry(_scene->CreateSphere());
+//   center->SetLocalPosition(3, 0, 0);
+//   center->SetLocalScale(0.1, 0.1, 0.1);
+//   center->SetMaterial(green);
+//   root->AddChild(center);
+//
+// //! [red material]
+//   // create red material
+//   MaterialPtr red = _scene->CreateMaterial();
+//   red->SetAmbient(0.5, 0.0, 0.0);
+//   red->SetDiffuse(1.0, 0.0, 0.0);
+//   red->SetSpecular(0.5, 0.5, 0.5);
+//   red->SetShininess(50);
+//   red->SetReflectivity(0);
+//   red->SetRenderOrder(3);
+// //! [red material]
+//
+//   // create sphere visual
+//   VisualPtr sphere = _scene->CreateVisual();
+//   sphere->AddGeometry(_scene->CreateSphere());
+//   sphere->SetOrigin(0.0, -0.5, 0.0);
+//   sphere->SetLocalPosition(3, 0, 0);
+//   sphere->SetLocalRotation(0, 0, 0);
+//   sphere->SetLocalScale(1, 1, 1);
+//   sphere->SetMaterial(red);
+//   root->AddChild(sphere);
 
   // create blue material
   MaterialPtr blue = _scene->CreateMaterial();
-  blue->SetAmbient(0.0, 0.0, 0.3);
-  blue->SetDiffuse(0.0, 0.0, 0.8);
+  blue->SetAmbient(0.0, 0.0, 1.0);
+  blue->SetDiffuse(0.0, 0.0, 1.0);
   blue->SetSpecular(0.5, 0.5, 0.5);
   blue->SetShininess(50);
   blue->SetReflectivity(0);
@@ -118,53 +118,53 @@ void buildScene(ScenePtr _scene)
   box->SetMaterial(blue);
   root->AddChild(box);
 
-  // create ellipsoid visual
-  VisualPtr ellipsoidVisual = _scene->CreateVisual();
-  auto ellipsoid = _scene->CreateSphere();
-  ellipsoidVisual->SetLocalScale(1.2, 0.7, 0.5);
-  ellipsoidVisual->AddGeometry(ellipsoid);
-  ellipsoidVisual->SetLocalPosition(3, -1, 0);
-  ellipsoidVisual->SetMaterial(green);
-  root->AddChild(ellipsoidVisual);
+  // // create ellipsoid visual
+  // VisualPtr ellipsoidVisual = _scene->CreateVisual();
+  // auto ellipsoid = _scene->CreateSphere();
+  // ellipsoidVisual->SetLocalScale(1.2, 0.7, 0.5);
+  // ellipsoidVisual->AddGeometry(ellipsoid);
+  // ellipsoidVisual->SetLocalPosition(3, -1, 0);
+  // ellipsoidVisual->SetMaterial(green);
+  // root->AddChild(ellipsoidVisual);
 
-//! [white material]
-  // create white material
-  MaterialPtr white = _scene->CreateMaterial();
-  white->SetAmbient(0.5, 0.5, 0.5);
-  white->SetDiffuse(0.8, 0.8, 0.8);
-  white->SetReceiveShadows(true);
-  white->SetReflectivity(0);
-  white->SetRenderOrder(0);
-//! [white material]
+// //! [white material]
+//   // create white material
+//   MaterialPtr white = _scene->CreateMaterial();
+//   white->SetAmbient(0.5, 0.5, 0.5);
+//   white->SetDiffuse(0.8, 0.8, 0.8);
+//   white->SetReceiveShadows(true);
+//   white->SetReflectivity(0);
+//   white->SetRenderOrder(0);
+// //! [white material]
+//
+//   // create plane visual
+//   VisualPtr plane = _scene->CreateVisual();
+//   plane->AddGeometry(_scene->CreatePlane());
+//   plane->SetLocalScale(5, 8, 1);
+//   plane->SetLocalPosition(3, 0, -0.5);
+//   plane->SetMaterial(white);
+//   root->AddChild(plane);
+//
+//   // create plane visual
+//   VisualPtr plane2 = _scene->CreateVisual();
+//   plane2->AddGeometry(_scene->CreatePlane());
+//   plane2->SetLocalScale(5, 8, 1);
+//   plane2->SetLocalPosition(4, 0.5, -0.5);
+//   plane2->Scale(0.1, 0.1, 1);
+//   plane2->SetMaterial(red);
+//   root->AddChild(plane2);
 
-  // create plane visual
-  VisualPtr plane = _scene->CreateVisual();
-  plane->AddGeometry(_scene->CreatePlane());
-  plane->SetLocalScale(5, 8, 1);
-  plane->SetLocalPosition(3, 0, -0.5);
-  plane->SetMaterial(white);
-  root->AddChild(plane);
-
-  // create plane visual
-  VisualPtr plane2 = _scene->CreateVisual();
-  plane2->AddGeometry(_scene->CreatePlane());
-  plane2->SetLocalScale(5, 8, 1);
-  plane2->SetLocalPosition(4, 0.5, -0.5);
-  plane2->Scale(0.1, 0.1, 1);
-  plane2->SetMaterial(red);
-  root->AddChild(plane2);
-
-  // create axis visual
-  VisualPtr axis = _scene->CreateAxisVisual();
-  axis->SetLocalPosition(4.0, 0.5, -0.4);
-  root->AddChild(axis);
+  // // create axis visual
+  // VisualPtr axis = _scene->CreateAxisVisual();
+  // axis->SetLocalPosition(4.0, 0.5, -0.4);
+  // root->AddChild(axis);
 
   // create camera
   CameraPtr camera = _scene->CreateCamera("camera");
   camera->SetLocalPosition(0.0, 0.0, 0.0);
   camera->SetLocalRotation(0.0, 0.0, 0.0);
-  camera->SetImageWidth(800);
-  camera->SetImageHeight(600);
+  camera->SetImageWidth(640);
+  camera->SetImageHeight(480);
   camera->SetAntiAliasing(2);
   camera->SetAspectRatio(1.333);
   camera->SetHFOV(IGN_PI / 2);
@@ -211,7 +211,7 @@ int main(int _argc, char** _argv)
   std::vector<CameraPtr> cameras;
 
   engineNames.push_back(engine);
-  engineNames.push_back("optix");
+  // engineNames.push_back("optix");
 
   for (auto engineName : engineNames)
   {

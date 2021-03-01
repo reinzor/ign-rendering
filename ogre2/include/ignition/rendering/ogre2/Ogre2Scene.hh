@@ -26,6 +26,9 @@
 
 #include "ignition/rendering/ogre2/Export.hh"
 
+#include "Compositor/OgreCompositorManager2.h"
+
+
 namespace Ogre
 {
   class Root;
@@ -288,6 +291,8 @@ namespace ignition
 
       /// \brief Pointer to private data class
       private: std::unique_ptr<Ogre2ScenePrivate> dataPtr;
+
+    protected: Ogre::CompositorManager2 *compositorManager;
 
       /// \brief Make the render engine our friend
       private: friend class Ogre2RenderEngine;

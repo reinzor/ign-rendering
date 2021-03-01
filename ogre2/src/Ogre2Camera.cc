@@ -18,10 +18,11 @@
 #include "ignition/rendering/ogre2/Ogre2Camera.hh"
 #include "ignition/rendering/ogre2/Ogre2Conversions.hh"
 #include "ignition/rendering/ogre2/Ogre2Includes.hh"
-// #include "ignition/rendering/ogre2/Ogre2Material.hh"
+#include "ignition/rendering/ogre2/Ogre2Material.hh"
+#include "ignition/rendering/ogre2/Ogre2RenderEngine.hh"
 #include "ignition/rendering/ogre2/Ogre2RenderTarget.hh"
 #include "ignition/rendering/ogre2/Ogre2Scene.hh"
-#include "ignition/rendering/ogre2/Ogre2SelectionBuffer.hh"
+// #include "ignition/rendering/ogre2/Ogre2SelectionBuffer.hh"
 #include "ignition/rendering/Utils.hh"
 
 /// \brief Private data for the Ogre2Camera class
@@ -137,6 +138,8 @@ void Ogre2Camera::Render()
 //////////////////////////////////////////////////
 RenderTargetPtr Ogre2Camera::RenderTarget() const
 {
+  if (this->renderTexture == nullptr)
+    std::cerr << "RenderTarget is null!!" << '\n';
   return this->renderTexture;
 }
 
@@ -164,7 +167,8 @@ void Ogre2Camera::CreateCamera()
   this->ogreCamera->yaw(Ogre::Degree(-90.0));
   this->ogreCamera->roll(Ogre::Degree(-90.0));
   this->ogreCamera->setFixedYawAxis(false);
-
+  this->ogreCamera->setNearClipDistance( 0.2f );
+  this->ogreCamera->setFarClipDistance( 1000.0f );
   // TODO(anyone): provide api access
   this->ogreCamera->setAutoAspectRatio(true);
   this->ogreCamera->setProjectionType(Ogre::PT_PERSPECTIVE);
@@ -174,6 +178,7 @@ void Ogre2Camera::CreateCamera()
 //////////////////////////////////////////////////
 void Ogre2Camera::CreateRenderTexture()
 {
+  std::cerr << "Ogre2Camera::CreateRenderTexture()" << '\n';
   RenderTexturePtr base = this->scene->CreateRenderTexture();
   this->renderTexture = std::dynamic_pointer_cast<Ogre2RenderTexture>(base);
   this->renderTexture->SetCamera(this->ogreCamera);
@@ -196,13 +201,15 @@ unsigned int Ogre2Camera::RenderTextureGLId() const
   if (!rt)
     return 0u;
 
+  std::cerr << "rt->GLId() " << rt->GLId() << '\n';
+
   return rt->GLId();
 }
 
 //////////////////////////////////////////////////
 void Ogre2Camera::SetSelectionBuffer()
 {
-  this->selectionBuffer = new Ogre2SelectionBuffer(this->name, this->scene);
+  // this->selectionBuffer = new Ogre2SelectionBuffer(this->name, this->scene);
 }
 
 //////////////////////////////////////////////////
@@ -210,41 +217,41 @@ VisualPtr Ogre2Camera::VisualAt(const ignition::math::Vector2i &_mousePos)
 {
   VisualPtr result;
 
-  if (!this->selectionBuffer)
-  {
-    this->SetSelectionBuffer();
+  // if (!this->selectionBuffer)
+  // {
+  //   this->SetSelectionBuffer();
+  //
+  //   if (!this->selectionBuffer)
+  //   {
+  //     return result;
+  //   }
+  // }
 
-    if (!this->selectionBuffer)
-    {
-      return result;
-    }
-  }
-
-  float ratio = screenScalingFactor();
-  ignition::math::Vector2i mousePos(
-      static_cast<int>(std::rint(ratio * _mousePos.X())),
-      static_cast<int>(std::rint(ratio * _mousePos.Y())));
-
-  Ogre::Item *ogreItem = this->selectionBuffer->OnSelectionClick(
-      mousePos.X(), mousePos.Y());
-
-  if (ogreItem)
-  {
-    if (!ogreItem->getUserObjectBindings().getUserAny().isEmpty() &&
-        ogreItem->getUserObjectBindings().getUserAny().getType() ==
-        typeid(unsigned int))
-    {
-      try
-      {
-        result = this->scene->VisualById(Ogre::any_cast<unsigned int>(
-              ogreItem->getUserObjectBindings().getUserAny()));
-      }
-      catch(Ogre::Exception &e)
-      {
-        ignerr << "Ogre Error:" << e.getFullDescription() << "\n";
-      }
-    }
-  }
+  // float ratio = screenScalingFactor();
+  // ignition::math::Vector2i mousePos(
+  //     static_cast<int>(std::rint(ratio * _mousePos.X())),
+  //     static_cast<int>(std::rint(ratio * _mousePos.Y())));
+  //
+  // Ogre::Item *ogreItem = this->selectionBuffer->OnSelectionClick(
+  //     mousePos.X(), mousePos.Y());
+  //
+  // if (ogreItem)
+  // {
+  //   if (!ogreItem->getUserObjectBindings().getUserAny().isEmpty() &&
+  //       ogreItem->getUserObjectBindings().getUserAny().getType() ==
+  //       typeid(unsigned int))
+  //   {
+  //     try
+  //     {
+  //       result = this->scene->VisualById(Ogre::any_cast<unsigned int>(
+  //             ogreItem->getUserObjectBindings().getUserAny()));
+  //     }
+  //     catch(Ogre::Exception &e)
+  //     {
+  //       ignerr << "Ogre Error:" << e.getFullDescription() << "\n";
+  //     }
+  //   }
+  // }
 
   return result;
 }

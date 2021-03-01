@@ -26,7 +26,7 @@
 #include "ignition/rendering/base/BaseRenderTarget.hh"
 #include "ignition/rendering/ogre2/Ogre2Includes.hh"
 #include "ignition/rendering/ogre2/Ogre2Object.hh"
-#include "ignition/rendering/ogre2/Ogre2RenderTargetMaterial.hh"
+// #include "ignition/rendering/ogre2/Ogre2RenderTargetMaterial.hh"
 
 namespace Ogre
 {
@@ -54,6 +54,15 @@ namespace ignition
       /// \brief Destructor
       public: virtual ~Ogre2RenderTarget();
 
+      // Documentation inherited
+      public: virtual void PreRender() override;
+
+      // Documentation inherited
+      public: virtual void PostRender() override;
+
+      // Documentation inherited
+      public: virtual math::Color BackgroundColor() const override;
+
       /// \brief Get the anti-aliasing level
       public: virtual unsigned int AntiAliasing() const;
 
@@ -73,9 +82,6 @@ namespace ignition
       /// \param[in] _camera Pointer to ogre camera
       public: virtual void SetCamera(Ogre::Camera *_camera);
 
-      // Documentation inherited
-      public: virtual math::Color BackgroundColor() const override;
-
       /// \brief Set the background color of the render target
       /// \param[in] _color Color to set the background to
       public: virtual void SetBackgroundColor(math::Color _color);
@@ -87,12 +93,6 @@ namespace ignition
       /// \brief Get the background material of this camera
       /// \return background material
       public: virtual MaterialPtr BackgroundMaterial() const;
-
-      // Documentation inherited
-      public: virtual void PreRender() override;
-
-      // Documentation inherited
-      public: virtual void PostRender() override;
 
       /// \brief Main render call
       public: virtual void Render();
@@ -106,7 +106,7 @@ namespace ignition
       public: void SetMaterial(MaterialPtr _material);
 
       /// \brief Get a pointer to the ogre render target
-      public: virtual Ogre::RenderTarget *RenderTarget() const = 0;
+      public: virtual Ogre::TextureGpu *RenderTarget() const = 0;
 
       /// \brief Get visibility mask for the viewport associated with this
       /// render target
@@ -197,7 +197,7 @@ namespace ignition
       protected: MaterialPtr material;
 
       /// \brief Helper class that applies the material to the render target
-      protected: Ogre2RenderTargetMaterialPtr materialApplicator;
+      // protected: Ogre2RenderTargetMaterialPtr materialApplicator;
 
       /// \brief Flag to indicate if the render target color has changed
       protected: bool colorDirty = true;
@@ -212,7 +212,7 @@ namespace ignition
       /// \brief visibility mask associated with this render target
       protected: uint32_t visibilityMask = IGN_VISIBILITY_ALL;
 
-      /// \brief Pointer to private data
+      // \brief Pointer to private data
       private: std::unique_ptr<Ogre2RenderTargetPrivate> dataPtr;
     };
 
@@ -239,7 +239,7 @@ namespace ignition
       public: virtual unsigned int GLId() const override;
 
       // Documentation inherited.
-      public: virtual Ogre::RenderTarget *RenderTarget() const override;
+      public: virtual Ogre::TextureGpu *RenderTarget() const override;
 
       // Documentation inherited.
       protected: virtual void RebuildTarget() override;
@@ -251,7 +251,7 @@ namespace ignition
       protected: virtual void BuildTarget();
 
       /// \brief Pointer to the internal ogre render texture object
-      protected: Ogre::Texture *ogreTexture = nullptr;
+      protected: Ogre::TextureGpu *ogreTexture = nullptr;
 
       /// \brief Make scene our friend so it can create a ogre2 render texture
       private: friend class Ogre2Scene;
@@ -271,7 +271,7 @@ namespace ignition
       public: virtual void Destroy() override;
 
       // Documentation inherited.
-      public: virtual Ogre::RenderTarget *RenderTarget() const override;
+      public: virtual Ogre::TextureGpu *RenderTarget() const override;
 
       // Documentation inherited.
       protected: virtual void RebuildTarget() override;
@@ -280,7 +280,7 @@ namespace ignition
       protected: virtual void BuildTarget();
 
       /// \brief Pointer to the internal ogre render target object
-      protected: Ogre::RenderTarget *ogreRenderWindow = nullptr;
+      protected: Ogre::TextureGpu *ogreRenderWindow = nullptr;
 
       /// \brief Make scene our friend so it can create a ogre2 render window
       private: friend class Ogre2Scene;

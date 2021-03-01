@@ -18,31 +18,31 @@
 #include <ignition/common/Console.hh>
 
 #include "ignition/rendering/RenderTypes.hh"
-#include "ignition/rendering/ogre2/Ogre2ArrowVisual.hh"
-#include "ignition/rendering/ogre2/Ogre2AxisVisual.hh"
+// #include "ignition/rendering/ogre2/Ogre2ArrowVisual.hh"
+// #include "ignition/rendering/ogre2/Ogre2AxisVisual.hh"
 #include "ignition/rendering/ogre2/Ogre2Camera.hh"
 #include "ignition/rendering/ogre2/Ogre2Conversions.hh"
-#include "ignition/rendering/ogre2/Ogre2DepthCamera.hh"
-#include "ignition/rendering/ogre2/Ogre2GizmoVisual.hh"
-#include "ignition/rendering/ogre2/Ogre2GpuRays.hh"
-#include "ignition/rendering/ogre2/Ogre2Grid.hh"
+// #include "ignition/rendering/ogre2/Ogre2DepthCamera.hh"
+// #include "ignition/rendering/ogre2/Ogre2GizmoVisual.hh"
+// #include "ignition/rendering/ogre2/Ogre2GpuRays.hh"
+// #include "ignition/rendering/ogre2/Ogre2Grid.hh"
 #include "ignition/rendering/ogre2/Ogre2Includes.hh"
 #include "ignition/rendering/ogre2/Ogre2Light.hh"
-#include "ignition/rendering/ogre2/Ogre2LightVisual.hh"
-#include "ignition/rendering/ogre2/Ogre2LidarVisual.hh"
-#include "ignition/rendering/ogre2/Ogre2Marker.hh"
+// #include "ignition/rendering/ogre2/Ogre2LightVisual.hh"
+// #include "ignition/rendering/ogre2/Ogre2LidarVisual.hh"
+// #include "ignition/rendering/ogre2/Ogre2Marker.hh"
 #include "ignition/rendering/ogre2/Ogre2Material.hh"
 #include "ignition/rendering/ogre2/Ogre2MeshFactory.hh"
 #include "ignition/rendering/ogre2/Ogre2Node.hh"
-#include "ignition/rendering/ogre2/Ogre2ParticleEmitter.hh"
-#include "ignition/rendering/ogre2/Ogre2RayQuery.hh"
+// #include "ignition/rendering/ogre2/Ogre2ParticleEmitter.hh"
+// #include "ignition/rendering/ogre2/Ogre2RayQuery.hh"
 #include "ignition/rendering/ogre2/Ogre2RenderEngine.hh"
 #include "ignition/rendering/ogre2/Ogre2RenderTarget.hh"
 #include "ignition/rendering/ogre2/Ogre2RenderTypes.hh"
 #include "ignition/rendering/ogre2/Ogre2Scene.hh"
-#include "ignition/rendering/ogre2/Ogre2ThermalCamera.hh"
+// #include "ignition/rendering/ogre2/Ogre2ThermalCamera.hh"
 #include "ignition/rendering/ogre2/Ogre2Visual.hh"
-#include "ignition/rendering/ogre2/Ogre2WireBox.hh"
+// #include "ignition/rendering/ogre2/Ogre2WireBox.hh"
 
 /// \brief Private data for the Ogre2Scene class
 class ignition::rendering::Ogre2ScenePrivate
@@ -110,10 +110,10 @@ void Ogre2Scene::SetAmbientLight(const math::Color &_color)
       Ogre::Vector3::UNIT_Z);
 }
 
-
 //////////////////////////////////////////////////
 void Ogre2Scene::PreRender()
 {
+  std::cerr << "/* Ogre2Scene::PreRender */" << '\n';
   if (this->ShadowsDirty())
   {
     // notify all render targets
@@ -130,9 +130,10 @@ void Ogre2Scene::PreRender()
         {
           // need to destroy compositor resources first before the render target
           // builds the new shadow node
-          rt->DestroyCompositor();
+          // rt->DestroyCompositor();
           // hack: this marks the render target dirty and causes it to be
           // rebuilt
+          std::cerr << "/* Camera Settted!!*/" << '\n';
           rt->SetCamera(rt->Camera());
         }
       }
@@ -250,6 +251,20 @@ CameraPtr Ogre2Scene::CreateCameraImpl(unsigned int _id,
 {
   Ogre2CameraPtr camera(new Ogre2Camera);
   bool result = this->InitObject(camera, _id, _name);
+
+  std::cerr << "/* CreateCameraImpl -> " << result << '\n';
+
+    // Setup a basic compositor with a blue clear colour
+  auto engine = Ogre2RenderEngine::Instance();
+  auto ogreRoot = engine->OgreRoot();
+  compositorManager = ogreRoot->getCompositorManager2();
+  const Ogre::String workspaceName( "Ogre2CameraWS" );
+  const Ogre::ColourValue backgroundColour( 0.2f, 0.4f, 0.6f );
+  // const Ogre::ColourValue backgroundColour( this->backgroundColor.R(), this->backgroundColor.G(), this->backgroundColor.B() );
+  compositorManager->createBasicWorkspaceDef( workspaceName, backgroundColour, Ogre::IdString() );
+  compositorManager->addWorkspace(
+    ogreSceneManager, camera->RenderTarget()->RenderTarget(), camera->OgreCamera(), workspaceName, true );
+
   camera->SetBackgroundColor(this->backgroundColor);
   if (this->backgroundMaterial)
     camera->SetBackgroundMaterial(this->backgroundMaterial);
@@ -260,27 +275,27 @@ CameraPtr Ogre2Scene::CreateCameraImpl(unsigned int _id,
 DepthCameraPtr Ogre2Scene::CreateDepthCameraImpl(const unsigned int _id,
     const std::string &_name)
 {
-  Ogre2DepthCameraPtr camera(new Ogre2DepthCamera);
-  bool result = this->InitObject(camera, _id, _name);
-  return (result) ? camera : nullptr;
+//   Ogre2DepthCameraPtr camera(new Ogre2DepthCamera);
+//   bool result = this->InitObject(camera, _id, _name);
+//   return (result) ? camera : nullptr;
 }
 
 //////////////////////////////////////////////////
 ThermalCameraPtr Ogre2Scene::CreateThermalCameraImpl(const unsigned int _id,
     const std::string &_name)
 {
-  Ogre2ThermalCameraPtr camera(new Ogre2ThermalCamera);
-  bool result = this->InitObject(camera, _id, _name);
-  return (result) ? camera : nullptr;
+//   Ogre2ThermalCameraPtr camera(new Ogre2ThermalCamera);
+//   bool result = this->InitObject(camera, _id, _name);
+//   return (result) ? camera : nullptr;
 }
 
 //////////////////////////////////////////////////
 GpuRaysPtr Ogre2Scene::CreateGpuRaysImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2GpuRaysPtr gpuRays(new Ogre2GpuRays);
-  bool result = this->InitObject(gpuRays, _id, _name);
-  return (result) ? gpuRays : nullptr;
+//   Ogre2GpuRaysPtr gpuRays(new Ogre2GpuRays);
+//   bool result = this->InitObject(gpuRays, _id, _name);
+//   return (result) ? gpuRays : nullptr;
 }
 
 //////////////////////////////////////////////////
@@ -296,36 +311,36 @@ VisualPtr Ogre2Scene::CreateVisualImpl(unsigned int _id,
 ArrowVisualPtr Ogre2Scene::CreateArrowVisualImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2ArrowVisualPtr visual(new Ogre2ArrowVisual);
-  bool result = this->InitObject(visual, _id, _name);
-  return (result) ? visual : nullptr;
+//   Ogre2ArrowVisualPtr visual(new Ogre2ArrowVisual);
+//   bool result = this->InitObject(visual, _id, _name);
+//   return (result) ? visual : nullptr;
 }
 
 //////////////////////////////////////////////////
 AxisVisualPtr Ogre2Scene::CreateAxisVisualImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2AxisVisualPtr visual(new Ogre2AxisVisual);
-  bool result = this->InitObject(visual, _id, _name);
-  return (result) ? visual : nullptr;
+//   Ogre2AxisVisualPtr visual(new Ogre2AxisVisual);
+//   bool result = this->InitObject(visual, _id, _name);
+//   return (result) ? visual : nullptr;
 }
 
 //////////////////////////////////////////////////
 LightVisualPtr Ogre2Scene::CreateLightVisualImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2LightVisualPtr visual(new Ogre2LightVisual);
-  bool result = this->InitObject(visual, _id, _name);
-  return (result) ? visual : nullptr;
+//   Ogre2LightVisualPtr visual(new Ogre2LightVisual);
+//   bool result = this->InitObject(visual, _id, _name);
+//   return (result) ? visual : nullptr;
 }
 
 //////////////////////////////////////////////////
 GizmoVisualPtr Ogre2Scene::CreateGizmoVisualImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2GizmoVisualPtr visual(new Ogre2GizmoVisual);
-  bool result = this->InitObject(visual, _id, _name);
-  return (result) ? visual : nullptr;
+//   Ogre2GizmoVisualPtr visual(new Ogre2GizmoVisual);
+//   bool result = this->InitObject(visual, _id, _name);
+//   return (result) ? visual : nullptr;
 }
 
 //////////////////////////////////////////////////
@@ -387,46 +402,46 @@ MeshPtr Ogre2Scene::CreateMeshImpl(unsigned int _id,
 HeightmapPtr Ogre2Scene::CreateHeightmapImpl(unsigned int,
     const std::string &, const HeightmapDescriptor &)
 {
-  ignerr << "Ogre 2 doesn't support heightmaps yet, see " <<
-      "https://github.com/ignitionrobotics/ign-rendering/issues/187"
-      << std::endl;
-  return nullptr;
+//   ignerr << "Ogre 2 doesn't support heightmaps yet, see " <<
+//       "https://github.com/ignitionrobotics/ign-rendering/issues/187"
+//       << std::endl;
+//   return nullptr;
 }
 
 //////////////////////////////////////////////////
 GridPtr Ogre2Scene::CreateGridImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2GridPtr grid(new Ogre2Grid);
-  bool result = this->InitObject(grid, _id, _name);
-  return (result) ? grid : nullptr;
+//   Ogre2GridPtr grid(new Ogre2Grid);
+//   bool result = this->InitObject(grid, _id, _name);
+//   return (result) ? grid : nullptr;
 }
 
 //////////////////////////////////////////////////
 WireBoxPtr Ogre2Scene::CreateWireBoxImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2WireBoxPtr wireBox(new Ogre2WireBox);
-  bool result = this->InitObject(wireBox, _id, _name);
-  return (result) ? wireBox: nullptr;
+//   Ogre2WireBoxPtr wireBox(new Ogre2WireBox);
+//   bool result = this->InitObject(wireBox, _id, _name);
+//   return (result) ? wireBox: nullptr;
 }
 
 //////////////////////////////////////////////////
 MarkerPtr Ogre2Scene::CreateMarkerImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2MarkerPtr marker(new Ogre2Marker);
-  bool result = this->InitObject(marker, _id, _name);
-  return (result) ? marker: nullptr;
+//   Ogre2MarkerPtr marker(new Ogre2Marker);
+//   bool result = this->InitObject(marker, _id, _name);
+//   return (result) ? marker: nullptr;
 }
 
 //////////////////////////////////////////////////
 LidarVisualPtr Ogre2Scene::CreateLidarVisualImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2LidarVisualPtr lidar(new Ogre2LidarVisual);
-  bool result = this->InitObject(lidar, _id, _name);
-  return (result) ? lidar: nullptr;
+//   Ogre2LidarVisualPtr lidar(new Ogre2LidarVisual);
+//   bool result = this->InitObject(lidar, _id, _name);
+//   return (result) ? lidar: nullptr;
 }
 
 //////////////////////////////////////////////////
@@ -467,18 +482,18 @@ RenderWindowPtr Ogre2Scene::CreateRenderWindowImpl(unsigned int /*_id*/,
 RayQueryPtr Ogre2Scene::CreateRayQueryImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2RayQueryPtr rayQuery(new Ogre2RayQuery);
-  bool result = this->InitObject(rayQuery, _id, _name);
-  return (result) ? rayQuery : nullptr;
+//   Ogre2RayQueryPtr rayQuery(new Ogre2RayQuery);
+//   bool result = this->InitObject(rayQuery, _id, _name);
+//   return (result) ? rayQuery : nullptr;
 }
 
 //////////////////////////////////////////////////
 ParticleEmitterPtr Ogre2Scene::CreateParticleEmitterImpl(unsigned int _id,
     const std::string &_name)
 {
-  Ogre2ParticleEmitterPtr visual(new Ogre2ParticleEmitter);
-  bool result = this->InitObject(visual, _id, _name);
-  return (result) ? visual : nullptr;
+//   Ogre2ParticleEmitterPtr visual(new Ogre2ParticleEmitter);
+//   bool result = this->InitObject(visual, _id, _name);
+//   return (result) ? visual : nullptr;
 }
 
 //////////////////////////////////////////////////
@@ -500,10 +515,9 @@ bool Ogre2Scene::InitObject(Ogre2ObjectPtr _object, unsigned int _id,
 //////////////////////////////////////////////////
 void Ogre2Scene::CreateContext()
 {
+  std::cerr << "/* CreateContext */" << '\n';
   Ogre::Root *root = Ogre2RenderEngine::Instance()->OgreRoot();
 
-  Ogre::InstancingThreadedCullingMethod threadedCullingMethod =
-      Ogre::INSTANCING_CULLING_SINGLETHREAD;
   // getNumLogicalCores() may return 0 if couldn't detect
   const size_t numThreads = std::max<size_t>(
       1, Ogre::PlatformInformation::getNumLogicalCores());
@@ -514,8 +528,7 @@ void Ogre2Scene::CreateContext()
   //   threadedCullingMethod = Ogre::INSTANCING_CULLING_THREADED;
   // Create the SceneManager, in this case a generic one
   this->ogreSceneManager = root->createSceneManager(Ogre::ST_GENERIC,
-                                                    numThreads,
-                                                    threadedCullingMethod);
+                                                    numThreads);
 
   this->ogreSceneManager->addRenderQueueListener(
       Ogre2RenderEngine::Instance()->OverlaySystem());
@@ -531,7 +544,7 @@ void Ogre2Scene::CreateContext()
   // enable forward plus to support multiple lights
   // this is required for non-shadow-casting point lights and
   // spot lights to work
-  this->ogreSceneManager->setForwardClustered(true, 16, 8, 24, 96, 1, 500);
+  this->ogreSceneManager->setForwardClustered(true, 16, 8, 24, 96, 0, 0, 1, 500);
 }
 
 //////////////////////////////////////////////////

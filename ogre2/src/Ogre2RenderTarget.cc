@@ -15,15 +15,15 @@
  *
  */
 
-// leave this out of OgreIncludes as it conflicts with other files requiring
-// gl.h
-#ifdef _MSC_VER
-#pragma warning(push, 0)
-#endif
-#include <OgreGL3PlusFBORenderTexture.h>
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+// // leave this out of OgreIncludes as it conflicts with other files requiring
+// // gl.h
+// #ifdef _MSC_VER
+// #pragma warning(push, 0)
+// #endif
+// #include <OgreGL3PlusFBORenderTexture.h>
+// #ifdef _MSC_VER
+// #pragma warning(pop)
+// #endif
 
 #include <ignition/common/Console.hh>
 
@@ -66,13 +66,13 @@ class Ogre2RenderTargetCompositorListener :
       Ogre::CompositorPassScene *scenePass =
           static_cast<Ogre::CompositorPassScene *>(_pass);
       IGN_ASSERT(scenePass != nullptr, "Unable to get scene pass");
-      Ogre::Viewport *vp = scenePass->getViewport();
+      Ogre::Camera *vp = scenePass->getCamera();
       // make sure we do not alter the reserved visibility flags
       uint32_t f = this->ogreRenderTarget->VisibilityMask() |
           ~Ogre::VisibilityFlags::RESERVED_VISIBILITY_FLAGS;
       // apply the new visibility mask
-      uint32_t flags = f & vp->getVisibilityMask();
-      vp->_setVisibilityMask(flags, vp->getLightVisibilityMask());
+      uint32_t flags = f & vp->getVisibilityFlags();
+      vp->setVisibilityFlags(flags);
     }
   }
 
@@ -118,24 +118,28 @@ Ogre2RenderTarget::Ogre2RenderTarget()
 //////////////////////////////////////////////////
 Ogre2RenderTarget::~Ogre2RenderTarget()
 {
-  if (this->dataPtr->rtListener)
-  {
-    delete this->dataPtr->rtListener;
-    this->dataPtr->rtListener = nullptr;
-  }
+  // if (this->dataPtr->rtListener)
+  // {
+  //   delete this->dataPtr->rtListener;
+  //   this->dataPtr->rtListener = nullptr;
+  // }
 }
 
 //////////////////////////////////////////////////
 void Ogre2RenderTarget::BuildCompositor()
 {
+  std::cerr << "/* BuildCompositor */" << '\n';
   auto engine = Ogre2RenderEngine::Instance();
   auto ogreRoot = engine->OgreRoot();
   Ogre::CompositorManager2 *ogreCompMgr = ogreRoot->getCompositorManager2();
+  std::cerr << "/* getCompositorManager2 */" << '\n';
 
   this->UpdateBackgroundMaterial();
+  std::cerr << "/* UpdateBackgroundMaterial */" << '\n';
 
   bool validBackground = this->backgroundMaterial &&
       !this->backgroundMaterial->EnvironmentMap().empty();
+  std::cerr << "/* validBackground */" << '\n';
 
   // The function build a similar compositor as the one defined in
   // ogre2/media/2.0/scripts/Compositors/PbsMaterials.compositor
@@ -150,45 +154,46 @@ void Ogre2RenderTarget::BuildCompositor()
   {
     // PbsMaterialsRenderingNode
     std::string nodeDefName = wsDefName + "/" + this->dataPtr->kBaseNodeName;
+    std::cerr << " nodeDefName " << nodeDefName << '\n';
     Ogre::CompositorNodeDef *nodeDef =
         ogreCompMgr->addNodeDefinition(nodeDefName);
 
     // Input texture
     Ogre::TextureDefinitionBase::TextureDefinition *rt0TexDef =
         nodeDef->addTextureDefinition("rt0");
-    rt0TexDef->textureType = Ogre::TEX_TYPE_2D;
+    rt0TexDef->textureType = Ogre::TextureTypes::Type2D;
     rt0TexDef->width = 0;
     rt0TexDef->height = 0;
-    rt0TexDef->depth = 1;
+    rt0TexDef->depthOrSlices = 1;
     rt0TexDef->numMipmaps = 0;
     rt0TexDef->widthFactor = 1;
     rt0TexDef->heightFactor = 1;
-    rt0TexDef->formatList = {Ogre::PF_R8G8B8};
-    rt0TexDef->fsaa = 0;
-    rt0TexDef->uav = false;
-    rt0TexDef->automipmaps = false;
-    rt0TexDef->hwGammaWrite = Ogre::TextureDefinitionBase::BoolTrue;
+    rt0TexDef->format = Ogre::PFG_RGB8_UNORM;
+    // rt0TexDef->fsaa = 0;
+    rt0TexDef->textureFlags |= !Ogre::TextureFlags::Uav;
+    // rt0TexDef->automipmaps = false;
+    // rt0TexDef->hwGammaWrite = Ogre::TextureDefinitionBase::BoolTrue;
     rt0TexDef->depthBufferId = Ogre::DepthBuffer::POOL_DEFAULT;
-    rt0TexDef->depthBufferFormat = Ogre::PF_UNKNOWN;
-    rt0TexDef->fsaaExplicitResolve = false;
+    rt0TexDef->depthBufferFormat = Ogre::PFG_UNKNOWN;
+    // rt0TexDef->fsaaExplicitResolve = false;
 
     Ogre::TextureDefinitionBase::TextureDefinition *rt1TexDef =
         nodeDef->addTextureDefinition("rt1");
-    rt1TexDef->textureType = Ogre::TEX_TYPE_2D;
+    rt1TexDef->textureType = Ogre::TextureTypes::Type2D;
     rt1TexDef->width = 0;
     rt1TexDef->height = 0;
-    rt1TexDef->depth = 1;
-    rt1TexDef->numMipmaps = 0;
+    rt1TexDef->depthOrSlices = 1;
+    // rt1TexDef->numMipmaps = 0;
     rt1TexDef->widthFactor = 1;
     rt1TexDef->heightFactor = 1;
-    rt1TexDef->formatList = {Ogre::PF_R8G8B8};
-    rt1TexDef->fsaa = 0;
-    rt1TexDef->uav = false;
-    rt1TexDef->automipmaps = false;
-    rt1TexDef->hwGammaWrite = Ogre::TextureDefinitionBase::BoolTrue;
+    rt1TexDef->format = Ogre::PFG_RGB8_UNORM;
+    // rt1TexDef->fsaa = 0;
+    rt1TexDef->textureFlags |= !Ogre::TextureFlags::Uav;
+    // rt1TexDef->automipmaps = false;
+    // rt1TexDef->hwGammaWrite = Ogre::TextureDefinitionBase::BoolTrue;
     rt1TexDef->depthBufferId = Ogre::DepthBuffer::POOL_DEFAULT;
-    rt1TexDef->depthBufferFormat = Ogre::PF_UNKNOWN;
-    rt1TexDef->fsaaExplicitResolve = false;
+    rt1TexDef->depthBufferFormat = Ogre::PFG_UNKNOWN;
+    // rt1TexDef->fsaaExplicitResolve = false;
 
     nodeDef->setNumTargetPass(2);
     Ogre::CompositorTargetDef *rt0TargetDef =
@@ -203,7 +208,7 @@ void Ogre2RenderTarget::BuildCompositor()
       Ogre::CompositorPassClearDef *passClear =
           static_cast<Ogre::CompositorPassClearDef *>(
           rt0TargetDef->addPass(Ogre::PASS_CLEAR));
-      passClear->mColourValue = this->ogreBackgroundColor;
+      passClear->mClearColour[0] = this->ogreBackgroundColor;
 
       if (validBackground)
       {
@@ -248,7 +253,7 @@ void Ogre2RenderTarget::BuildCompositor()
           static_cast<Ogre::CompositorPassQuadDef *>(
           outTargetDef->addPass(Ogre::PASS_QUAD));
       passQuad->mMaterialName = "Ogre/Copy/4xFP32";
-      passQuad->addQuadTextureSource(0, "rtN", 0);
+      passQuad->addQuadTextureSource(0, "rtN");
 
       // scene pass
       Ogre::CompositorPassSceneDef *passScene =
@@ -266,15 +271,27 @@ void Ogre2RenderTarget::BuildCompositor()
     workDef->connect(nodeDefName, 0, finalNodeDefName, 1);
   }
 
-  this->UpdateShadowNode();
+  std::cerr << "/* IF */" << '\n';
 
-  this->ogreCompositorWorkspace =
-      ogreCompMgr->addWorkspace(this->scene->OgreSceneManager(),
-      this->RenderTarget(), this->ogreCamera,
-      this->ogreCompositorWorkspaceDefName, false);
+  this->UpdateShadowNode();
+  std::cerr << "/* UpdateShadowNode " << ogreCompositorWorkspaceDefName << '\n';
+
+  try{
+    this->ogreCompositorWorkspace =
+        ogreCompMgr->addWorkspace(this->scene->OgreSceneManager(),
+        engine->getWindow()->getTexture(), this->ogreCamera,
+        this->ogreCompositorWorkspaceDefName, false);
+  } catch (Ogre::Exception &e)
+  {
+    ignerr << "Ogre Error Ogre2RenderTexture::BuildCompositor:" << e.getFullDescription() << "\n";
+  }
+
+  std::cerr << "/* addWorkspace */" << '\n';
 
   this->dataPtr->rtListener = new Ogre2RenderTargetCompositorListener(this);
-  this->ogreCompositorWorkspace->setListener(this->dataPtr->rtListener);
+  // std::cerr << "/* Ogre2RenderTargetCompositorListener */" << '\n';
+  // this->ogreCompositorWorkspace->addListener(this->dataPtr->rtListener);
+  // std::cerr << "/* BuildCompositor end*/" << '\n';
 }
 
 //////////////////////////////////////////////////
@@ -295,8 +312,8 @@ void Ogre2RenderTarget::DestroyCompositor()
       "/" + this->dataPtr->kFinalNodeName);
 
   this->ogreCompositorWorkspace = nullptr;
-  delete this->dataPtr->rtListener;
-  this->dataPtr->rtListener = nullptr;
+  // delete this->dataPtr->rtListener;
+  // this->dataPtr->rtListener = nullptr;
 }
 
 //////////////////////////////////////////////////
@@ -309,6 +326,7 @@ void Ogre2RenderTarget::RebuildCompositor()
 //////////////////////////////////////////////////
 void Ogre2RenderTarget::Copy(Image &_image) const
 {
+  // std::cerr << "Copy" << _image.Width() << " " << _image.Height()<< '\n';
   // TODO(anyone) handle Bayer conversions
   // TODO(anyone) handle ogre version differences
 
@@ -318,10 +336,139 @@ void Ogre2RenderTarget::Copy(Image &_image) const
     return;
   }
 
-  void *data = _image.Data();
-  Ogre::PixelFormat imageFormat = Ogre2Conversions::Convert(_image.Format());
-  Ogre::PixelBox ogrePixelBox(this->width, this->height, 1, imageFormat, data);
-  this->RenderTarget()->copyContentsToMemory(ogrePixelBox);
+  // void *data = _image.Data();
+  Ogre::PixelFormatGpu imageFormat = Ogre2Conversions::Convert(_image.Format());
+  // Ogre::PixelBox ogrePixelBox(this->width, this->height, 1, imageFormat, data);
+  // this->RenderTarget()->copyContentsToMemory(ogrePixelBox);
+  // std::cerr << "Convert end" << '\n';
+
+  std::cerr << "Width: " << _image.Width() << " Height: " << _image.Height() << " Depth: " << _image.Depth() << '\n';
+
+  // Ogre::Image2 ogreImage;
+  // ogreImage.loadDynamicImage(
+  //   static_cast<Ogre::uint8 *>(_image.Data()),
+  //   _image.Width(),
+  //   _image.Height(),
+  //   1,
+  //   Ogre::TextureTypes::Type2D,
+  //   imageFormat,
+  //   false, 1u );
+  // ogreImage.save( "./EglHeadlessOutputAlex.png", 0u, 1u );
+  // std::cerr << "loadDynamicImage" << '\n';
+
+  auto engine = Ogre2RenderEngine::Instance();
+  // engine->getWindow()->requestResolution(800, 600);
+  // engine->getWindow()->windowMovedOrResized();
+  auto textureWindow = engine->getWindow()->getTexture();
+  std::cerr << "Window size W: " <<  textureWindow->getWidth() << " H: " << textureWindow->getHeight()
+    << " D: " << textureWindow->getDepth() << " S:" << textureWindow->getNumSlices() << '\n';
+
+  Ogre::Root *root = Ogre2RenderEngine::Instance()->OgreRoot();
+
+  // Ogre::TextureGpuManager *textureManager = root->getRenderSystem()->getTextureGpuManager();
+
+  // std::cerr << "getStagingTexture" << '\n';
+
+  //Tell the texture we're going resident. The imageData pointer is only needed
+  //if the texture pageout strategy is GpuPageOutStrategy::AlwaysKeepSystemRamCopy
+  //which is in this example is not, so a nullptr would also work just fine.
+  // auto texture = RenderTarget();
+  //
+  const Ogre::uint32 rowAlignment = 4u;
+  const size_t dataSize = Ogre::PixelFormatGpuUtils::getSizeBytes( textureWindow->getWidth(),
+                                                                   textureWindow->getHeight(),
+                                                                   textureWindow->getDepth(),
+                                                                   textureWindow->getNumSlices(),
+                                                                   textureWindow->getPixelFormat(),
+                                                                   rowAlignment );
+  const size_t bytesPerRow = textureWindow->_getSysRamCopyBytesPerRow( 0 );
+  // Ogre::uint8 *imageData = reinterpret_cast<Ogre::uint8*>( OGRE_MALLOC_SIMD( dataSize,
+  //                                                                Ogre::MEMCATEGORY_RESOURCE ) );
+  //
+  // // Ogre::uint8 *imageData = reinterpret_cast<Ogre::uint8*>(_image.Data());
+  // texture->_transitionTo( Ogre::GpuResidency::Resident, reinterpret_cast<Ogre::uint8*>(_image.Data()));
+  // texture->_setNextResidencyStatus( Ogre::GpuResidency::Resident );
+  //
+  // Ogre::StagingTexture *stagingTexture = textureManager->getStagingTexture(
+  //   this->width,
+  //   this->height,
+  //   1u, 1u,
+  //   imageFormat);
+  //
+  // stagingTexture->startMapRegion();
+  // // std::cerr << "startMapRegion" << '\n';
+  // Ogre::TextureBox texBox = stagingTexture->mapRegion(
+  //   this->width,
+  //   this->height,
+  //   1u,
+  //   1u,
+  //   imageFormat );
+  // // std::cerr << "mapRegion" << '\n';
+  //
+  // std::cerr << texture->getWidth() << " " << texture->getHeight() << " " << dataSize << '\n';
+  //
+  // // //for( uint8 mip=0; mip<numMipmaps; ++mip )
+  // // texBox.copyFrom( _image.Data(), texture->getWidth(), texture->getHeight(), bytesPerRow );
+  // Ogre::TextureBox destBox(textureWindow->getWidth(), textureWindow->getHeight(),
+  //   textureWindow->getDepth(), textureWindow->getNumSlices(), 3u, bytesPerRow, dataSize);
+  // texture->copyContentsToMemory(texBox, destBox, imageFormat);
+  // // texBox.copyFrom( ogreImage.getData(0) );
+  // // std::cerr << "copyFrom" << '\n';
+  // stagingTexture->stopMapRegion();
+  // // std::cerr << "stopMapRegion" << '\n';
+  // // if(RenderTarget() == nullptr)
+  // //   std::cerr << "ogreTexture is null" << '\n';
+  // // stagingTexture->upload( texBox, texture, 0, 0, 0 );
+  // // std::cerr << "upload" << '\n';
+  // textureManager->removeStagingTexture( stagingTexture );
+  // // std::cerr << "removeStagingTexture" << '\n';
+  // stagingTexture = 0;
+  // texture->notifyDataIsReady();
+  // std::cerr << "Copy end" << '\n';
+
+  // void *data = _image.Data();
+  // Ogre::PixelBox ogrePixelBox(textureWindow->getWidth(), textureWindow->getHeight(), 1, imageFormat, data);
+
+  std::cerr << "dataSize: " << dataSize << '\n';
+
+    Ogre::Image2 image2;
+    image2.convertFromTexture( textureWindow, 0u, 0u );
+
+    auto dataImage = static_cast<unsigned char *>(_image.Data());
+    auto dataImage2 = static_cast<Ogre::uint8 *>(image2.getRawBuffer());
+    int index = 0;
+
+    for (int row = 0; row < textureWindow->getHeight(); ++row)
+    {
+      for (int column = 0; column < textureWindow->getWidth(); ++column)
+      {
+        dataImage[3 * (textureWindow->getHeight() * row + column) + 2] = dataImage2[4 * (textureWindow->getHeight() * row + column)];
+        dataImage[3 * (textureWindow->getHeight() * row + column) + 1] = dataImage2[4 * (textureWindow->getHeight() * row + column) + 1];
+        dataImage[3 * (textureWindow->getHeight() * row + column)] = dataImage2[4 * (textureWindow->getHeight() * row + column) + 2];
+      }
+    }
+    // if it contains alpha channel
+    // memcpy(_image.Data(), image2.getRawBuffer(), _image.MemorySize());
+
+    //
+    // for (int i = 0; i < dataSize; i+=4)
+    // {
+    //   if (i == 0)
+    //     printf("%u , %u, %u\n", dataImage2[i], dataImage2[i+1], dataImage2[i+2]);
+    //   dataImage[index] = dataImage2[i];
+    //   dataImage[index++] = dataImage2[i+1];
+    //   dataImage[index++] = dataImage2[i+2];
+    // }
+
+    image2.save( "./EglHeadlessOutput.png", 0u, 1u );
+    // printf( "Saving done! %u %u\n", dataSize, _image.MemorySize());
+    //
+    // memcpy(_image.Data(), image2.getRawBuffer(), _image.MemorySize());
+
+    // image2.convertFromTexture( this->RenderTarget(), 0u, 0u );
+    // image2.save( "./EglHeadlessOutpuogreTexture.png", 0u, 1u );
+    // printf( "Saving done!\n" );
+    // exit(0);
 }
 
 //////////////////////////////////////////////////
@@ -404,10 +551,11 @@ void Ogre2RenderTarget::Render()
   // There is current not an easy solution to manually updating
   // render textures:
   // https://forums.ogre3d.org/viewtopic.php?t=84687
-  this->ogreCompositorWorkspace->setEnabled(true);
+  // this->ogreCompositorWorkspace->setEnabled(true);
   auto engine = Ogre2RenderEngine::Instance();
-  engine->OgreRoot()->renderOneFrame();
-  this->ogreCompositorWorkspace->setEnabled(false);
+  Ogre::WindowEventUtilities::messagePump();
+  std::cerr << "Render One Frame " << engine->OgreRoot()->renderOneFrame() << std::endl;
+  // this->ogreCompositorWorkspace->setEnabled(false);
 
   // The code below for manual updating render textures was suggested in ogre
   // forum but it does not seem to work
@@ -446,11 +594,14 @@ void Ogre2RenderTarget::UpdateBackgroundColor()
 {
   if (this->colorDirty)
   {
+    if(!this->ogreCompositorWorkspace)
+      return;
     // set background color in compositor clear pass def
     auto nodeSeq = this->ogreCompositorWorkspace->getNodeSequence();
     auto pass = nodeSeq[0]->_getPasses()[0]->getDefinition();
     auto clearPass = dynamic_cast<const Ogre::CompositorPassClearDef *>(pass);
-    const_cast<Ogre::CompositorPassClearDef *>(clearPass)->mColourValue =
+    // TODO(ahcorde)
+    const_cast<Ogre::CompositorPassClearDef *>(clearPass)->mClearColour[0] =
         this->ogreBackgroundColor;
 
     this->colorDirty = false;
@@ -485,7 +636,7 @@ void Ogre2RenderTarget::UpdateBackgroundMaterial()
     Ogre::TextureUnitState *texUnit =
         mat->getTechnique(0u)->getPass(0u)->getTextureUnitState(0u);
     texUnit->setTextureName(this->backgroundMaterial->EnvironmentMap(),
-        Ogre::TEX_TYPE_CUBE_MAP);
+        Ogre::TextureTypes::TypeCube);
   }
 
   this->backgroundMaterialDirty = false;
@@ -820,9 +971,9 @@ void Ogre2RenderTarget::CreateShadowNodeWithSettings(
 
       texDef->width = std::max(atlasRes.x, 1u);
       texDef->height = std::max(atlasRes.y, 1u);
-      texDef->formatList.push_back(Ogre::PF_D32_FLOAT);
+      texDef->format = Ogre::PFG_D32_FLOAT;
       texDef->depthBufferId = Ogre::DepthBuffer::POOL_NON_SHAREABLE;
-      texDef->depthBufferFormat = Ogre::PF_D32_FLOAT;
+      texDef->depthBufferFormat = Ogre::PFG_D32_FLOAT;
       texDef->preferDepthTexture = false;
       texDef->fsaa = false;
     }
@@ -835,11 +986,11 @@ void Ogre2RenderTarget::CreateShadowNodeWithSettings(
 
       texDef->width   = pointLightCubemapResolution;
       texDef->height  = pointLightCubemapResolution;
-      texDef->depth   = 6u;
-      texDef->textureType = Ogre::TEX_TYPE_CUBE_MAP;
-      texDef->formatList.push_back(Ogre::PF_FLOAT32_R);
+      texDef->depthOrSlices   = 6u;
+      texDef->textureType = Ogre::TextureTypes::TypeCube;
+      texDef->format = Ogre::PFG_R32_FLOAT;
       texDef->depthBufferId = 1u;
-      texDef->depthBufferFormat = Ogre::PF_D32_FLOAT;
+      texDef->depthBufferFormat = Ogre::PFG_D32_FLOAT;
       texDef->preferDepthTexture = false;
       texDef->fsaa = false;
     }
@@ -879,7 +1030,7 @@ void Ogre2RenderTarget::CreateShadowNodeWithSettings(
 
       Ogre::ShadowTextureDefinition *shadowTexDef =
           shadowNodeDef->addShadowTextureDefinition(lightIdx, j, texName,
-          0, uvOffset, uvLength, 0);
+          uvOffset, uvLength, 0);
       shadowTexDef->shadowMapTechnique = shadowParam.technique;
       shadowTexDef->pssmLambda = pssmLambda;
       shadowTexDef->splitPadding = splitPadding;
@@ -906,8 +1057,9 @@ void Ogre2RenderTarget::CreateShadowNodeWithSettings(
       Ogre::CompositorPassDef *passDef = targetDef->addPass(Ogre::PASS_CLEAR);
       Ogre::CompositorPassClearDef *passClear =
           static_cast<Ogre::CompositorPassClearDef *>(passDef);
-      passClear->mColourValue = Ogre::ColourValue::White;
-      passClear->mDepthValue = 1.0f;
+      // TODO(ahcorde): review this, it's an array of 8 positions
+      passClear->mClearColour[0] = Ogre::ColourValue::White;
+      passClear->mClearDepth = 1.0f;
     }
 
     // Pass scene for directional and spot lights first
@@ -966,8 +1118,9 @@ void Ogre2RenderTarget::CreateShadowNodeWithSettings(
                 targetDef->addPass(Ogre::PASS_CLEAR);
             Ogre::CompositorPassClearDef *passClear =
                 static_cast<Ogre::CompositorPassClearDef *>(passDef);
-            passClear->mColourValue = Ogre::ColourValue::White;
-            passClear->mDepthValue = 1.0f;
+            // TODO(ahcorde): review this, it's an array of 8 positions
+            passClear->mClearColour[0] = Ogre::ColourValue::White;
+            passClear->mClearDepth = 1.0f;
             passClear->mShadowMapIdx = shadowMapIdx;
           }
 
@@ -995,7 +1148,7 @@ void Ogre2RenderTarget::CreateShadowNodeWithSettings(
             static_cast<Ogre::CompositorPassQuadDef *>(passDef);
         passQuad->mMaterialIsHlms = false;
         passQuad->mMaterialName = "Ogre/DPSM/CubeToDpsm";
-        passQuad->addQuadTextureSource(0, "tmpCubemap", 0);
+        passQuad->addQuadTextureSource(0, "tmpCubemap");
         passQuad->mShadowMapIdx = shadowMapIdx;
       }
       const size_t numSplits = shadowParam.technique ==
@@ -1033,9 +1186,10 @@ void Ogre2RenderTarget::RebuildMaterial()
     Ogre::MaterialPtr matPtr = ogreMaterial->Material();
 
     Ogre::SceneManager *sceneMgr = this->scene->OgreSceneManager();
-    Ogre::RenderTarget *target = this->RenderTarget();
-    this->materialApplicator.reset(new Ogre2RenderTargetMaterial(
-        sceneMgr, target, matPtr.get()));
+    Ogre::TextureGpu *target = this->RenderTarget();
+    // TODO(ahcorde): Review this
+    // this->materialApplicator.reset(new Ogre2RenderTargetMaterial(
+    //     sceneMgr, target, matPtr.get()));
   }
 }
 
@@ -1058,9 +1212,10 @@ void Ogre2RenderTexture::Destroy()
 }
 
 //////////////////////////////////////////////////
-Ogre::RenderTarget *Ogre2RenderTexture::RenderTarget() const
+Ogre::TextureGpu *Ogre2RenderTexture::RenderTarget() const
 {
-  return this->ogreTexture->getBuffer()->getRenderTarget();
+  std::cerr << "/* Ogre2RenderTexture::RenderTarget */" << '\n';
+  return this->ogreTexture;
 }
 
 
@@ -1077,9 +1232,14 @@ void Ogre2RenderTexture::DestroyTarget()
   if (nullptr == this->ogreTexture)
     return;
 
-  auto &manager = Ogre::TextureManager::getSingleton();
-  manager.unload(this->ogreTexture->getName());
-  manager.remove(this->ogreTexture->getName());
+  // Ogre::Root *root = Ogre2RenderEngine::Instance()->OgreRoot();
+  // Ogre::TextureGpuManager *textureManager = root->getRenderSystem()->getTextureGpuManager();
+  // textureManager->unload(this->ogreTexture->getName());
+  // textureManager->remove(this->ogreTexture->getName());
+
+  // auto &manager = Ogre::TextureManager::getSingleton();
+  // manager.unload(this->ogreTexture->getName());
+  // manager.remove(this->ogreTexture->getName());
 
   // TODO(anyone) there is memory leak when a render texture is destroyed.
   // The RenderSystem::_cleanupDepthBuffers method used in ogre1 does not
@@ -1091,9 +1251,9 @@ void Ogre2RenderTexture::DestroyTarget()
 //////////////////////////////////////////////////
 void Ogre2RenderTexture::BuildTarget()
 {
-  Ogre::TextureManager &manager = Ogre::TextureManager::getSingleton();
-  Ogre::PixelFormat ogreFormat = Ogre2Conversions::Convert(this->format);
-
+  std::cerr << "/* Ogre2RenderTexture::BuildTarget " << this->width << " " << this->height << '\n';
+  // Ogre::TextureManager &manager = Ogre::TextureManager::getSingleton();
+  //
   // check if target fsaa is supported
   unsigned int fsaa = 0;
   std::vector<unsigned int> fsaaLevels =
@@ -1115,11 +1275,34 @@ void Ogre2RenderTexture::BuildTarget()
       ogre2FSAAWarn = true;
     }
   }
+  try{
+    Ogre::Root *root = Ogre2RenderEngine::Instance()->OgreRoot();
+    Ogre::PixelFormatGpu ogreFormat = Ogre2Conversions::Convert(this->format);
+    Ogre::TextureGpuManager *textureManager = root->getRenderSystem()->getTextureGpuManager();
 
-  // Ogre 2 PBS expects gamma correction to be enabled
-  this->ogreTexture = (manager.createManual(this->name, "General",
-      Ogre::TEX_TYPE_2D, this->width, this->height, 0, ogreFormat,
-      Ogre::TU_RENDERTARGET, 0, true, fsaa)).get();
+    std::cerr << "name: " << this->name << " W: " <<this->width << " H: " << this->height << '\n';
+    // Ogre 2 PBS expects gamma correction to be enabled
+    this->ogreTexture = textureManager->createOrRetrieveTexture(
+      this->name,
+      Ogre::GpuPageOutStrategy::Discard,
+      Ogre::TextureFlags::ManualTexture,
+      Ogre::TextureTypes::Type2D,
+      Ogre::BLANKSTRING,
+      0u);
+    this->ogreTexture->setPixelFormat( Ogre::PFG_RGBA8_UNORM_SRGB );
+    this->ogreTexture->setTextureType( Ogre::TextureTypes::Type2D );
+    this->ogreTexture->setNumMipmaps( 1u );
+    this->ogreTexture->setResolution(this->width, this->height);
+    this->ogreTexture->scheduleTransitionTo( Ogre::GpuResidency::Resident );
+    this->ogreTexture->waitForMetadata();
+    auto engine = Ogre2RenderEngine::Instance();
+    engine->getWindow()->requestResolution(this->width, this->height);
+    engine->getWindow()->windowMovedOrResized();
+  }
+  catch(Ogre::Exception &e)
+  {
+      ignerr << "Ogre Error Ogre2RenderTexture::BuildTarget:" << e.getFullDescription() << "\n";
+  }
 }
 
 //////////////////////////////////////////////////
@@ -1128,9 +1311,8 @@ unsigned int Ogre2RenderTexture::GLId() const
   if (!this->ogreTexture)
     return 0;
 
-  GLuint texId;
+  unsigned int texId;
   this->ogreTexture->getCustomAttribute("GLID", &texId);
-
   return static_cast<unsigned int>(texId);
 }
 
@@ -1159,7 +1341,7 @@ Ogre2RenderWindow::~Ogre2RenderWindow()
 }
 
 //////////////////////////////////////////////////
-Ogre::RenderTarget *Ogre2RenderWindow::RenderTarget() const
+Ogre::TextureGpu *Ogre2RenderWindow::RenderTarget() const
 {
   return this->ogreRenderWindow;
 }
@@ -1173,28 +1355,28 @@ void Ogre2RenderWindow::Destroy()
 //////////////////////////////////////////////////
 void Ogre2RenderWindow::RebuildTarget()
 {
+  std::cerr << "/*  Ogre2RenderWindow::RebuildTarget() */" << '\n';
   // TODO(anyone): determine when to rebuild
   // ie. only when ratio or handle changes!
   // e.g. sizeDirty?
   if (!this->ogreRenderWindow)
     this->BuildTarget();
 
-  Ogre::RenderWindow *window =
-      dynamic_cast<Ogre::RenderWindow *>(this->ogreRenderWindow);
-  window->resize(this->width, this->height);
+  Ogre::Window *window =
+      dynamic_cast<Ogre::Window *>(this->ogreRenderWindow);
+  // window->requestResolution (this->width, this->height);
   window->windowMovedOrResized();
 }
 
 //////////////////////////////////////////////////
 void Ogre2RenderWindow::BuildTarget()
 {
+  std::cerr << "void Ogre2RenderWindow::BuildTarget()" << '\n';
   auto engine = Ogre2RenderEngine::Instance();
-  std::string renderTargetName =
-      engine->CreateRenderWindow(this->handle,
+  this->ogreRenderWindow =
+      engine->CreateRenderWindow2(this->handle,
           this->width,
           this->height,
           this->ratio,
-          this->antiAliasing);
-  this->ogreRenderWindow =
-      engine->OgreRoot()->getRenderTarget(renderTargetName);
+          this->antiAliasing)->getTexture();
 }
